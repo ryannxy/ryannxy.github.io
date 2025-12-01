@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hammy's Christmas Countdown</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Rachel's Christmas Countdown</title>
+    <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts --><link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FontAwesome --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
         tailwind.config = {
@@ -33,9 +30,6 @@
                         'twinkle': 'twinkle 2s infinite ease-in-out',
                         'wiggle': 'wiggle 1s ease-in-out infinite',
                         'spin-slow': 'spin 8s linear infinite',
-                        'hamster-run': 'run 20s linear infinite',
-                        'hamster-peek': 'peek 8s ease-in-out infinite',
-                        'hamster-float': 'float 25s linear infinite',
                         'pulse-glow': 'pulseGlow 2s infinite',
                         'slide-in': 'slideIn 0.5s ease-out forwards',
                     },
@@ -47,19 +41,6 @@
                         wiggle: {
                             '0%, 100%': { transform: 'rotate(-3deg)' },
                             '50%': { transform: 'rotate(3deg)' },
-                        },
-                        run: {
-                            '0%': { left: '-10%', transform: 'scaleX(1)' },
-                            '100%': { left: '110%', transform: 'scaleX(1)' }
-                        },
-                        peek: {
-                            '0%, 40%, 100%': { transform: 'translateY(100%)' },
-                            '50%, 90%': { transform: 'translateY(10%)' }
-                        },
-                        float: {
-                            '0%': { bottom: '-10%', opacity: '1', transform: 'rotate(5deg)' },
-                            '50%': { transform: 'rotate(-5deg)' },
-                            '100%': { bottom: '110%', opacity: '0', transform: 'rotate(5deg)' }
                         },
                         pulseGlow: {
                             '0%, 100%': { textShadow: '0 0 10px #D42426, 0 0 20px #D42426' },
@@ -95,7 +76,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 40; /* Lower than Nav (50) but higher than hamsters (30) */
+            z-index: 40; /* Lower than Nav (50) */
         }
         
         /* Sparkle Trail */
@@ -262,75 +243,35 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Interactive Hamster Animations */
-        .hamster-spin { animation: spin 0.5s linear; }
-        .hamster-jump { animation: jump 0.5s ease-in-out; }
-        @keyframes jump { 
-            0%, 100% { transform: translateY(0); } 
-            50% { transform: translateY(-50px); } 
-        }
     </style>
 </head>
 <body class="bg-xmas-dark text-snow font-body overflow-x-hidden flex flex-col min-h-screen relative cursor-default">
 
-    <!-- Hamster Layer -->
-    <!-- FIX: Ensure the container is pointer-events-none, but children are auto -->
-    <div class="fixed inset-0 z-30 overflow-hidden pointer-events-none">
-        <!-- Running Hamster -->
-        <div class="absolute bottom-2 text-4xl animate-hamster-run cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
-             style="animation-delay: 0s;" onclick="interactHamster(this, 'jump')">
-            🐹
-        </div>
-        <!-- Peeking Hamster -->
-        <div class="absolute bottom-0 right-10 text-5xl animate-hamster-peek cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
-             onclick="interactHamster(this, 'spin')">
-            🎅🐹
-        </div>
-        <!-- Floating Hamster -->
-        <div class="absolute left-10 text-4xl animate-hamster-float cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
-             style="left: 15%;" onclick="interactHamster(this, 'pop')">
-            🎈🐹
-        </div>
-        <!-- Another Running Hamster (Faster/Smaller) -->
-        <div class="absolute bottom-8 text-2xl animate-hamster-run cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
-             style="animation-duration: 15s; animation-delay: 10s; opacity: 0.8;" onclick="interactHamster(this, 'jump')">
-            🐹
-        </div>
-    </div>
+    <!-- Snow Effect Canvas --><canvas id="snow-canvas"></canvas>
 
-    <!-- Snow Effect Canvas -->
-    <canvas id="snow-canvas"></canvas>
-
-    <!-- Navigation -->
-    <!-- FIX: Increased z-index to 50 to sit above snow (40) and hamsters (30) -->
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-xmas-dark/90 backdrop-blur-md border-b border-white/10" id="navbar">
+    <!-- Navigation --><!-- FIX: Increased z-index to 50 to sit above snow (40) and hamsters (30) --><nav class="fixed w-full z-50 transition-all duration-300 bg-xmas-dark/90 backdrop-blur-md border-b border-white/10" id="navbar">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" onclick="showPage('home')" class="text-3xl font-festive text-xmas-red hover:text-xmas-gold transition-colors">
-                <i class="fa-solid fa-snowflake mr-2 animate-spin-slow"></i>Hammy's Christmas Countdown 🐹
+                <i class="fa-solid fa-snowflake mr-2 animate-spin-slow"></i>Rachel's Christmas Countdown
             </a>
             <div class="hidden md:flex space-x-8 font-semibold">
                 <button onclick="showPage('home')" class="nav-link hover:text-xmas-gold transition-colors text-xmas-gold" data-target="home">Home</button>
                 <button onclick="showPage('calendar')" class="nav-link hover:text-xmas-gold transition-colors" data-target="calendar">Advent Calendar</button>
                 <button onclick="showPage('wishlist')" class="nav-link hover:text-xmas-gold transition-colors" data-target="wishlist">Wish List</button>
             </div>
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-btn" class="md:hidden text-2xl focus:outline-none">
+            <!-- Mobile Menu Button --><button id="mobile-menu-btn" class="md:hidden text-2xl focus:outline-none">
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-xmas-dark border-t border-white/10">
+        <!-- Mobile Menu --><div id="mobile-menu" class="hidden md:hidden bg-xmas-dark border-t border-white/10">
             <button onclick="showPage('home')" class="block w-full text-left py-3 px-6 hover:bg-white/10">Home</button>
             <button onclick="showPage('calendar')" class="block w-full text-left py-3 px-6 hover:bg-white/10">Advent Calendar</button>
             <button onclick="showPage('wishlist')" class="block w-full text-left py-3 px-6 hover:bg-white/10">Wish List</button>
         </div>
     </nav>
 
-    <!-- PAGE: HOME -->
-    <div id="page-home" class="page-section active" style="padding-top: 0;">
-        <!-- Hero Section -->
-        <section class="min-h-screen flex items-center justify-center relative pt-20">
+    <!-- PAGE: HOME --><div id="page-home" class="page-section active" style="padding-top: 0;">
+        <!-- Hero Section --><section class="min-h-screen flex items-center justify-center relative pt-20">
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544967082-d9d25d867d66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-30"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-xmas-dark"></div>
             
@@ -356,29 +297,24 @@
             </div>
         </section>
 
-        <!-- Countdown Section -->
-        <section id="countdown" class="py-20 relative bg-gradient-to-b from-xmas-dark to-xmas-green/20">
+        <!-- Countdown Section --><section id="countdown" class="py-20 relative bg-gradient-to-b from-xmas-dark to-xmas-green/20">
             <div class="container mx-auto px-6 text-center">
                 <h2 class="text-5xl font-festive mb-12 text-xmas-gold drop-shadow-lg">Countdown to Christmas</h2>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                    <!-- Days -->
-                    <div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                    <!-- Days --><div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
                         <div class="text-5xl md:text-7xl font-bold text-white mb-2" id="days">00</div>
                         <div class="text-xmas-gold font-bold uppercase tracking-widest">Days</div>
                     </div>
-                    <!-- Hours -->
-                    <div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                    <!-- Hours --><div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
                         <div class="text-5xl md:text-7xl font-bold text-white mb-2" id="hours">00</div>
                         <div class="text-xmas-gold font-bold uppercase tracking-widest">Hours</div>
                     </div>
-                    <!-- Minutes -->
-                    <div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                    <!-- Minutes --><div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
                         <div class="text-5xl md:text-7xl font-bold text-white mb-2" id="minutes">00</div>
                         <div class="text-xmas-gold font-bold uppercase tracking-widest">Minutes</div>
                     </div>
-                    <!-- Seconds -->
-                    <div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
+                    <!-- Seconds --><div class="glass-panel p-6 rounded-2xl transform hover:scale-105 transition-transform duration-300">
                         <div class="text-5xl md:text-7xl font-bold text-xmas-red mb-2" id="seconds">00</div>
                         <div class="text-xmas-gold font-bold uppercase tracking-widest">Seconds</div>
                     </div>
@@ -388,15 +324,13 @@
             </div>
         </section>
 
-        <!-- Decorate Tree Section -->
-        <section id="tree" class="py-20 bg-gradient-to-b from-xmas-green/20 to-xmas-dark relative overflow-hidden">
+        <!-- Decorate Tree Section --><section id="tree" class="py-20 bg-gradient-to-b from-xmas-green/20 to-xmas-dark relative overflow-hidden">
             <div class="container mx-auto px-6">
                 <h2 class="text-5xl font-festive text-center mb-4 text-xmas-red">Decorate the Tree</h2>
                 <p class="text-center text-gray-400 mb-12">Click anywhere on the tree to place an ornament!</p>
 
                 <div class="flex flex-col lg:flex-row items-center justify-center gap-12">
-                    <!-- Controls -->
-                    <div class="glass-panel p-8 rounded-2xl w-full lg:w-1/3 order-2 lg:order-1">
+                    <!-- Controls --><div class="glass-panel p-8 rounded-2xl w-full lg:w-1/3 order-2 lg:order-1">
                         <h3 class="text-2xl font-bold mb-6 flex items-center">
                             <i class="fa-solid fa-toolbox text-xmas-gold mr-3"></i> Ornament Box
                         </h3>
@@ -427,8 +361,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- The Tree SVG -->
-                    <div class="w-full lg:w-1/2 flex justify-center order-1 lg:order-2 relative z-20">
+                    <!-- The Tree SVG --><div class="w-full lg:w-1/2 flex justify-center order-1 lg:order-2 relative z-20">
                         <svg id="christmas-tree" viewBox="0 0 400 600" class="w-full max-w-md h-auto drop-shadow-2xl cursor-pointer">
                             <rect x="175" y="500" width="50" height="80" fill="#5D4037" />
                             <path d="M50 520 L200 150 L350 520 Z" fill="#165B33" stroke="#0F3F22" stroke-width="2" class="tree-part"/>
@@ -457,8 +390,7 @@
         </section>
     </div>
 
-    <!-- PAGE: CALENDAR -->
-    <div id="page-calendar" class="page-section">
+    <!-- PAGE: CALENDAR --><div id="page-calendar" class="page-section">
         <section class="container mx-auto px-6 py-10">
             <div class="text-center mb-12">
                 <i class="fa-solid fa-gifts text-6xl text-xmas-green mb-4 animate-bounce"></i>
@@ -466,10 +398,8 @@
                 <p class="text-gray-300 mt-2">Open a surprise gift every day until Christmas!</p>
             </div>
 
-            <!-- Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl mx-auto" id="advent-grid">
-                <!-- Javascript will inject doors here -->
-            </div>
+            <!-- Grid --><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-5xl mx-auto" id="advent-grid">
+                <!-- Javascript will inject doors here --></div>
             
             <div class="text-center mt-8">
                  <button onclick="resetAdvent()" class="text-xs text-gray-500 hover:text-red-400 underline transition-colors">Reset Calendar</button>
@@ -482,15 +412,13 @@
             </div>
         </section>
         
-        <!-- NEW: Floating Message Box (for error/info instead of alert) -->
-        <div id="calendar-message-box" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 p-4 rounded-xl shadow-2xl z-[100] text-white font-bold opacity-0 transition-opacity duration-300 pointer-events-none" style="background-color: #D42426; min-width: 300px; text-align: center;">
+        <!-- NEW: Floating Message Box (for error/info instead of alert) --><div id="calendar-message-box" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 p-4 rounded-xl shadow-2xl z-[100] text-white font-bold opacity-0 transition-opacity duration-300 pointer-events-none" style="background-color: #D42426; min-width: 300px; text-align: center;">
             Message Here
         </div>
         
     </div>
 
-    <!-- PAGE: WISHLIST -->
-    <div id="page-wishlist" class="page-section">
+    <!-- PAGE: WISHLIST --><div id="page-wishlist" class="page-section">
         <section class="container mx-auto px-6 max-w-3xl py-10">
             <div class="text-center mb-10">
                 <i class="fa-solid fa-scroll text-6xl text-xmas-gold mb-4 animate-wiggle"></i>
@@ -499,8 +427,7 @@
             </div>
 
             <div class="glass-panel p-6 md:p-10 rounded-3xl shadow-2xl relative overflow-hidden">
-                <!-- Decorative Holly -->
-                <div class="absolute -top-4 -right-4 text-6xl text-xmas-red opacity-80 rotate-12">
+                <!-- Decorative Holly --><div class="absolute -top-4 -right-4 text-6xl text-xmas-red opacity-80 rotate-12">
                     <i class="fa-solid fa-holly-berry"></i>
                 </div>
 
@@ -512,8 +439,7 @@
                 </div>
 
                 <ul id="wish-list" class="space-y-3">
-                    <!-- Wishes will be injected here -->
-                </ul>
+                    <!-- Wishes will be injected here --></ul>
 
                 <div class="mt-8 pt-6 border-t border-white/10 text-center">
                     <button onclick="copyWishlist()" class="text-sm text-xmas-gold hover:text-white transition-colors flex items-center justify-center mx-auto">
@@ -521,478 +447,4 @@
                     </button>
                 </div>
             </div>
-             <div class="text-center mt-12">
-                 <button onclick="showPage('home')" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors flex items-center justify-center mx-auto hover:scale-105 transform">
-                     <i class="fa-solid fa-arrow-left mr-2"></i> Back Home
-                 </button>
-            </div>
-        </section>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-xmas-dark py-12 border-t border-white/5 text-center relative z-20 mt-auto">
-        <div class="container mx-auto px-6">
-            <div class="text-4xl font-festive text-xmas-red mb-6">Happy Holidays!</div>
-            <div class="flex justify-center space-x-6 mb-8 text-2xl text-gray-400">
-                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-facebook"></i></a>
-                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-twitter"></i></a>
-                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-instagram"></i></a>
-            </div>
-            <p class="text-gray-500 text-sm">
-                &copy; <span id="year"></span> Hammy's Christmas Countdown. Spread the joy.
-            </p>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Utility to display messages instead of alert/confirm
-        function showTemporaryMessage(message) {
-            const msgBox = document.getElementById('calendar-message-box');
-            msgBox.textContent = message;
-            msgBox.classList.remove('opacity-0');
-            msgBox.classList.add('opacity-100');
-
-            setTimeout(() => {
-                msgBox.classList.remove('opacity-100');
-                msgBox.classList.add('opacity-0');
-            }, 3000);
-        }
-
-        // --- Sparkle Cursor Logic ---
-        document.addEventListener('mousemove', function(e) {
-            createSparkle(e.clientX, e.clientY);
-        });
-
-        function createSparkle(x, y) {
-            const sparkle = document.createElement('div');
-            sparkle.classList.add('sparkle');
-            
-            // Randomize color slightly
-            const colors = ['#F8B229', '#D42426', '#FFF'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            sparkle.style.backgroundColor = color;
-            sparkle.style.boxShadow = `0 0 5px ${color}`;
-
-            sparkle.style.left = x + 'px';
-            sparkle.style.top = y + 'px';
-            document.body.appendChild(sparkle);
-
-            setTimeout(() => {
-                sparkle.remove();
-            }, 1000);
-        }
-
-        // --- Hamster Interaction ---
-        function interactHamster(el, type) {
-            if (type === 'spin') {
-                el.classList.add('hamster-spin');
-                // Play fake squeak if we had audio
-            } else if (type === 'jump') {
-                el.classList.add('hamster-jump');
-            } else if (type === 'pop') {
-                el.style.transform = "scale(1.5)";
-                setTimeout(() => el.style.transform = "", 200);
-            }
-            
-            setTimeout(() => {
-                el.classList.remove('hamster-spin', 'hamster-jump');
-            }, 500);
-        }
-
-        // --- Router Logic ---
-        function showPage(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page-section').forEach(page => {
-                page.classList.remove('active');
-            });
-            // Show target page
-            document.getElementById('page-' + pageId).classList.add('active');
-            
-            // Update Nav State
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if(link.dataset.target === pageId) {
-                    link.classList.add('text-xmas-gold');
-                    link.classList.remove('text-white');
-                } else {
-                    link.classList.remove('text-xmas-gold');
-                    link.classList.add('text-white');
-                }
-            });
-            
-            // Scroll to top
-            window.scrollTo(0,0);
-            
-            // Close mobile menu if open
-            document.getElementById('mobile-menu').classList.add('hidden');
-        }
-
-        // --- Snow Effect ---
-        const canvas = document.getElementById('snow-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-
-            reset() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * -height; // Start above screen
-                this.vx = Math.random() * 2 - 1; // Drift left/right
-                this.vy = Math.random() * 2 + 1; // Fall speed
-                this.size = Math.random() * 3 + 1;
-                this.opacity = Math.random() * 0.5 + 0.3;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Wiggle effect
-                this.vx += (Math.random() - 0.5) * 0.05;
-
-                // Reset if out of bounds
-                if (this.y > height) {
-                    this.reset();
-                }
-                if (this.x > width || this.x < 0) {
-                    this.reset();
-                    this.y = Math.random() * height; // Reappear at random height to avoid clumps
-                }
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fill();
-            }
-        }
-
-        function initSnow() {
-            resize();
-            particles = [];
-            const particleCount = window.innerWidth < 768 ? 50 : 150; // Fewer particles on mobile
-            for (let i = 0; i < particleCount; i++) {
-                let p = new Particle();
-                p.y = Math.random() * height; // Initial random placement
-                particles.push(p);
-            }
-        }
-
-        function animateSnow() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animateSnow);
-        }
-
-        window.addEventListener('resize', initSnow);
-        initSnow();
-        animateSnow();
-
-
-        // --- Countdown Timer ---
-        function updateCountdown() {
-            const currentYear = new Date().getFullYear();
-            const christmas = new Date(`December 25, ${currentYear} 00:00:00`).getTime();
-            const now = new Date().getTime();
-            let distance = christmas - now;
-
-            // If Christmas passed this year, count to next year
-            if (distance < 0) {
-                const nextXmas = new Date(`December 25, ${currentYear + 1} 00:00:00`).getTime();
-                distance = nextXmas - now;
-                document.getElementById('countdown-message').textContent = "Christmas has passed! Counting down to next year...";
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById('days').innerText = String(days).padStart(2, '0');
-            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
-        }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-
-        // --- Advent Calendar Logic ---
-        const adventGrid = document.getElementById('advent-grid');
-        const adventGifts = [
-            { icon: 'fa-cookie', text: 'Fresh-Baked Cookie Recipe' },
-            { icon: 'fa-heart', text: 'A digital hug' },
-            { icon: 'fa-snowman', text: 'Snowman-Building Instructions' },
-            { icon: 'fa-mug-hot', text: 'Hot Cocoa Voucher (Self-Redeemable)' },
-            { icon: 'fa-box', text: 'Tiny box of compliments' },
-            { icon: 'fa-microphone-alt', text: 'A high-five from a talking reindeer' },
-            { icon: 'fa-smile', text: 'An uncontrollable giggle' },
-            { icon: 'fa-shield-alt', text: 'Immunity to holiday stress' },
-            { icon: 'fa-feather-alt', text: 'Permission for a 10-minute nap' },
-            { icon: 'fa-caravan', text: 'A map to a secret candy cane forest' },
-            { icon: 'fa-star', text: 'The urge to help a neighbor' },
-            { icon: 'fa-pizza-slice', text: 'Pineapple on pizza is now acceptable' },
-            { icon: 'fa-lightbulb', text: 'A brilliant (but useless) idea' },
-            { icon: 'fa-paw', text: 'Adopt a fictional puppy for the day' },
-            { icon: 'fa-coffee', text: 'A triple shot of holiday cheer' },
-            { icon: 'fa-crown', text: 'Declared King/Queen of Cozy Socks' },
-            { icon: 'fa-book', text: 'A cheesy holiday poem' },
-            { icon: 'fa-gamepad', text: 'Find a matching sock' },
-            { icon: 'fa-cloud', text: 'One day of perfect weather' },
-            { icon: 'fa-infinity', text: 'Endless supply of wrapping paper' },
-            { icon: 'fa-magic', text: 'The ability to pause Christmas songs' },
-            { icon: 'fa-ghost', text: 'A friendly ghost to do chores' },
-            { icon: 'fa-dumbbell', text: 'The energy to finish all your shopping' },
-            { icon: 'fa-bell', text: 'A secret ringing that only you can hear' },
-            { icon: 'fa-gift', text: 'A note saying "Go check under the real tree!"' },
-        ];
-
-        let openedDoors = JSON.parse(localStorage.getItem('adventOpened')) || [];
-
-        function renderAdvent() {
-            const today = new Date();
-            const currentMonth = today.getMonth(); // 11 for December
-            const currentDate = today.getDate();
-            const isDecember = currentMonth === 11;
-            
-            adventGrid.innerHTML = '';
-            for (let i = 1; i <= 25; i++) {
-                const gift = adventGifts[i-1];
-                const isOpened = openedDoors.includes(i);
-                
-                // Add 'locked' class if it's December and the door is in the future
-                const isLocked = isDecember && i > currentDate; 
-                
-                const door = document.createElement('div');
-                door.className = `advent-door ${isOpened ? 'open' : ''} ${isLocked ? 'locked' : ''}`;
-                door.setAttribute('onclick', `toggleDoor(this, ${i})`);
-                
-                door.innerHTML = `
-                    <div class="door-inner">
-                        <div class="door-front">
-                            <span class="door-number">${i}</span>
-                        </div>
-                        <div class="door-back">
-                            <div class="bg-white/50 p-3 rounded-full mb-2 shadow-inner">
-                                <i class="fa-solid ${gift.icon} text-4xl text-xmas-red"></i>
-                            </div>
-                            <span class="text-sm font-bold uppercase tracking-wider text-slate-700 font-festive text-lg">${gift.text}</span>
-                        </div>
-                    </div>
-                `;
-                adventGrid.appendChild(door);
-            }
-        }
-
-        function toggleDoor(element, day) {
-            const isOpened = element.classList.contains('open');
-            if (isOpened) return; 
-
-            const today = new Date();
-            const currentMonth = today.getMonth();
-            const currentDate = today.getDate();
-            const isDecember = currentMonth === 11;
-            
-            if (isDecember) {
-                if (day <= currentDate) {
-                    // Door is openable today or earlier
-                    element.classList.add('open');
-                    if (!openedDoors.includes(day)) {
-                        openedDoors.push(day);
-                        localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
-                    }
-                } else {
-                    // Locked due to future date
-                    showTemporaryMessage(`Patience, Hammy! This door opens on December ${day}.`);
-                }
-            } else if (day === 25 && currentMonth === 0) { // January 1st to 25th (for late opens)
-                 // Allow opening if it's January and the day is in range
-                 element.classList.add('open');
-            }
-             else if (currentMonth !== 11) {
-                // Not December
-                showTemporaryMessage("The Advent Calendar is locked until December 1st.");
-            }
-        }
-        
-        function resetAdvent() {
-            // Using a simple window.confirm() here as it's outside the main app flow, 
-            // but for a production app, a custom modal is required.
-            if(window.confirm("Are you sure you want to close all doors and reset the calendar?")) {
-                openedDoors = [];
-                localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
-                renderAdvent();
-            }
-        }
-        renderAdvent();
-
-
-        // --- Tree Decoration Game ---
-        let selectedColor = '#FACC15'; // Default Gold
-        const svg = document.getElementById('christmas-tree');
-        const ornamentsLayer = document.getElementById('ornaments-layer');
-        let lightsOn = false;
-
-        function selectColor(btn) {
-            document.querySelectorAll('.ornament-btn').forEach(b => {
-                b.classList.remove('ring-white');
-                b.classList.add('ring-transparent');
-            });
-            btn.classList.remove('ring-transparent');
-            btn.classList.add('ring-white');
-            selectedColor = btn.getAttribute('data-color');
-        }
-
-        function getSVGPoint(event) {
-            const pt = svg.createSVGPoint();
-            pt.x = event.clientX;
-            pt.y = event.clientY;
-            return pt.matrixTransform(svg.getScreenCTM().inverse());
-        }
-
-        function isPointInTriangle(p, p0, p1, p2) {
-            const A = 0.5 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
-            const sign = A < 0 ? -1 : 1;
-            const s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
-            const t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y) * sign;
-            return s > 0 && t > 0 && (s + t) < 2 * A * sign;
-        }
-
-        function isInsideTree(point) {
-            const t1 = [{x:50,y:520}, {x:200,y:150}, {x:350,y:520}];
-            const t2 = [{x:75,y:400}, {x:200,y:100}, {x:325,y:400}];
-            const t3 = [{x:100,y:280}, {x:200,y:50}, {x:300,y:280}];
-            
-            return isPointInTriangle(point, t1[0], t1[1], t1[2]) ||
-                   isPointInTriangle(point, t2[0], t2[1], t2[2]) ||
-                   isPointInTriangle(point, t3[0], t3[1], t3[2]);
-        }
-
-        svg.addEventListener('click', (e) => {
-            const point = getSVGPoint(e);
-            if (isInsideTree(point)) {
-                createOrnament(point.x, point.y, selectedColor);
-            }
-        });
-
-        function createOrnament(x, y, color) {
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            circle.setAttribute("cx", x);
-            circle.setAttribute("cy", y);
-            circle.setAttribute("r", "12");
-            circle.setAttribute("fill", color);
-            circle.setAttribute("stroke", "rgba(0,0,0,0.2)");
-            circle.setAttribute("stroke-width", "1");
-            circle.style.cursor = "pointer";
-            const shine = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            shine.setAttribute("cx", x - 3);
-            shine.setAttribute("cy", y - 3);
-            shine.setAttribute("r", "3");
-            shine.setAttribute("fill", "rgba(255,255,255,0.4)");
-            shine.style.pointerEvents = "none";
-            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            group.appendChild(circle);
-            group.appendChild(shine);
-            group.addEventListener('click', (e) => {
-                e.stopPropagation();
-                group.remove();
-            });
-            ornamentsLayer.appendChild(group);
-        }
-
-        function clearTree() {
-            ornamentsLayer.innerHTML = '';
-        }
-
-        function toggleLights() {
-            const lights = document.getElementById('tree-lights');
-            lightsOn = !lightsOn;
-            if (lightsOn) {
-                lights.classList.remove('opacity-0');
-            } else {
-                lights.classList.add('opacity-0');
-            }
-        }
-
-
-        // --- Wish List Logic ---
-        const wishInput = document.getElementById('wish-input');
-        const wishList = document.getElementById('wish-list');
-        let wishes = JSON.parse(localStorage.getItem('xmasWishes')) || [];
-        
-        function renderWishes() {
-            wishList.innerHTML = '';
-            if (wishes.length === 0) {
-                wishList.innerHTML = '<li class="text-gray-400 text-center italic py-4">Your list is empty. Add a wish!</li>';
-                return;
-            }
-            wishes.forEach((wish, index) => {
-                const li = document.createElement('li');
-                li.className = 'flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors group animate-slide-in';
-                li.style.animationDelay = (index * 0.1) + 's';
-                li.innerHTML = `
-                    <span class="text-lg font-medium">${wish}</span>
-                    <button onclick="removeWish(${index})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
-                `;
-                wishList.appendChild(li);
-            });
-        }
-
-        function addWish() {
-            const text = wishInput.value.trim();
-            if (text) {
-                wishes.push(text);
-                localStorage.setItem('xmasWishes', JSON.stringify(wishes));
-                wishInput.value = '';
-                renderWishes();
-            }
-        }
-
-        function removeWish(index) {
-            wishes.splice(index, 1);
-            localStorage.setItem('xmasWishes', JSON.stringify(wishes));
-            renderWishes();
-        }
-
-        function copyWishlist() {
-            if (wishes.length === 0) return;
-            const text = "🎄 My Christmas Wish List:\n" + wishes.map(w => `- ${w}`).join('\n');
-            // Using execCommand for better iframe compatibility
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showTemporaryMessage("Wish list copied to clipboard!");
-        }
-
-        wishInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addWish();
-        });
-
-        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-
-        renderWishes();
-    </script>
-</body>
-</html>
+             <div class="
