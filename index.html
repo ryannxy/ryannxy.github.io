@@ -36,6 +36,8 @@
                         'hamster-run': 'run 20s linear infinite',
                         'hamster-peek': 'peek 8s ease-in-out infinite',
                         'hamster-float': 'float 25s linear infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'slide-in': 'slideIn 0.5s ease-out forwards',
                     },
                     keyframes: {
                         twinkle: {
@@ -58,6 +60,14 @@
                             '0%': { bottom: '-10%', opacity: '1', transform: 'rotate(5deg)' },
                             '50%': { transform: 'rotate(-5deg)' },
                             '100%': { bottom: '110%', opacity: '0', transform: 'rotate(5deg)' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { textShadow: '0 0 10px #D42426, 0 0 20px #D42426' },
+                            '50%': { textShadow: '0 0 20px #ff4d4f, 0 0 30px #ff4d4f' }
+                        },
+                        slideIn: {
+                            '0%': { opacity: 0, transform: 'translateX(-20px)' },
+                            '100%': { opacity: 1, transform: 'translateX(0)' }
                         }
                     }
                 }
@@ -85,7 +95,25 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 50;
+            z-index: 40; /* Lower than Nav (50) but higher than hamsters (30) */
+        }
+        
+        /* Sparkle Trail */
+        .sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #F8B229;
+            pointer-events: none;
+            z-index: 9999;
+            animation: fadeOut 1s forwards;
+            box-shadow: 0 0 10px #F8B229;
+        }
+        
+        @keyframes fadeOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; top: 20px; }
         }
 
         .glass-panel {
@@ -115,7 +143,7 @@
         .advent-door {
             perspective: 1000px;
             cursor: pointer;
-            height: 140px; /* Made slightly taller */
+            height: 140px; 
         }
         
         .door-inner {
@@ -123,7 +151,7 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1); /* Smoother flip */
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-style: preserve-3d;
         }
         
@@ -131,6 +159,18 @@
             transform: rotateY(180deg);
         }
         
+        /* New: Locked Door Styling */
+        .advent-door.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(50%);
+        }
+        .advent-door.locked .door-front:hover {
+            transform: none; /* Override hover effect */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
         .door-front, .door-back {
             position: absolute;
             width: 100%;
@@ -143,12 +183,13 @@
             flex-direction: column;
             border-radius: 1rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-            overflow: hidden; /* For ribbon clipping */
+            overflow: hidden;
         }
         
         .door-front {
             background: linear-gradient(135deg, #D42426 0%, #a01a1c 100%);
             border: 2px solid #F8B229;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         /* Ribbon Effects */
@@ -188,14 +229,14 @@
         }
         
         .door-front:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 30px -5px rgba(212, 36, 38, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            z-index: 20;
         }
         
         .door-front:hover .door-number {
             color: #F8B229;
-            text-shadow: 2px 2px 0px #851315;
+            text-shadow: 2px 2px 0px #851315, 0 0 15px #F8B229;
         }
 
         .door-back {
@@ -221,26 +262,39 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Interactive Hamster Animations */
+        .hamster-spin { animation: spin 0.5s linear; }
+        .hamster-jump { animation: jump 0.5s ease-in-out; }
+        @keyframes jump { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-50px); } 
+        }
     </style>
 </head>
-<body class="bg-xmas-dark text-snow font-body overflow-x-hidden flex flex-col min-h-screen relative">
+<body class="bg-xmas-dark text-snow font-body overflow-x-hidden flex flex-col min-h-screen relative cursor-default">
 
     <!-- Hamster Layer -->
-    <div class="fixed inset-0 pointer-events-none z-30 overflow-hidden">
+    <!-- FIX: Ensure the container is pointer-events-none, but children are auto -->
+    <div class="fixed inset-0 z-30 overflow-hidden pointer-events-none">
         <!-- Running Hamster -->
-        <div class="absolute bottom-2 text-4xl animate-hamster-run" style="animation-delay: 0s;">
+        <div class="absolute bottom-2 text-4xl animate-hamster-run cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
+             style="animation-delay: 0s;" onclick="interactHamster(this, 'jump')">
             🐹
         </div>
         <!-- Peeking Hamster -->
-        <div class="absolute bottom-0 right-10 text-5xl animate-hamster-peek">
+        <div class="absolute bottom-0 right-10 text-5xl animate-hamster-peek cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
+             onclick="interactHamster(this, 'spin')">
             🎅🐹
         </div>
         <!-- Floating Hamster -->
-        <div class="absolute left-10 text-4xl animate-hamster-float" style="left: 15%;">
+        <div class="absolute left-10 text-4xl animate-hamster-float cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
+             style="left: 15%;" onclick="interactHamster(this, 'pop')">
             🎈🐹
         </div>
         <!-- Another Running Hamster (Faster/Smaller) -->
-        <div class="absolute bottom-8 text-2xl animate-hamster-run" style="animation-duration: 15s; animation-delay: 10s; opacity: 0.8;">
+        <div class="absolute bottom-8 text-2xl animate-hamster-run cursor-pointer pointer-events-auto hover:scale-125 transition-transform" 
+             style="animation-duration: 15s; animation-delay: 10s; opacity: 0.8;" onclick="interactHamster(this, 'jump')">
             🐹
         </div>
     </div>
@@ -249,7 +303,8 @@
     <canvas id="snow-canvas"></canvas>
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-40 transition-all duration-300 bg-xmas-dark/90 backdrop-blur-md border-b border-white/10" id="navbar">
+    <!-- FIX: Increased z-index to 50 to sit above snow (40) and hamsters (30) -->
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-xmas-dark/90 backdrop-blur-md border-b border-white/10" id="navbar">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" onclick="showPage('home')" class="text-3xl font-festive text-xmas-red hover:text-xmas-gold transition-colors">
                 <i class="fa-solid fa-snowflake mr-2 animate-spin-slow"></i>Hammy's Christmas Countdown 🐹
@@ -281,17 +336,18 @@
             
             <div class="container mx-auto px-6 relative z-10 text-center">
                 <div class="inline-block animate-bounce-slow mb-4">
-                    <i class="fa-solid fa-sleigh text-5xl md:text-7xl text-xmas-gold"></i>
+                    <i class="fa-solid fa-sleigh text-5xl md:text-7xl text-xmas-gold filter drop-shadow-[0_0_10px_rgba(248,178,41,0.5)]"></i>
                 </div>
                 <h1 class="text-6xl md:text-9xl font-festive text-white mb-6 drop-shadow-[0_5px_5px_rgba(0,0,0,0.5)]">
-                    Merry <span class="text-xmas-red">Christmas</span>
+                    Merry <span class="text-xmas-red animate-pulse-glow">Christmas</span>
                 </h1>
                 <p class="text-xl md:text-2xl max-w-2xl mx-auto mb-10 text-gray-200">
                     May your days be merry and bright! Welcome to your personal holiday hub filled with cheer, magic, and digital snow.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button onclick="showPage('calendar')" class="inline-block bg-xmas-red hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 border-2 border-red-400">
-                        Open Calendar <i class="fa-regular fa-calendar-check ml-2"></i>
+                    <button onclick="showPage('calendar')" class="inline-block bg-xmas-red hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 border-2 border-red-400 relative overflow-hidden group">
+                        <span class="relative z-10">Open Calendar <i class="fa-regular fa-calendar-check ml-2"></i></span>
+                        <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:animate-[shine_1s_infinite]"></div>
                     </button>
                     <a href="#tree" class="inline-block bg-xmas-green hover:bg-green-800 text-white font-bold py-4 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 border-2 border-green-400">
                         Decorate Tree <i class="fa-solid fa-tree ml-2"></i>
@@ -303,7 +359,7 @@
         <!-- Countdown Section -->
         <section id="countdown" class="py-20 relative bg-gradient-to-b from-xmas-dark to-xmas-green/20">
             <div class="container mx-auto px-6 text-center">
-                <h2 class="text-5xl font-festive mb-12 text-xmas-gold">Countdown to Christmas</h2>
+                <h2 class="text-5xl font-festive mb-12 text-xmas-gold drop-shadow-lg">Countdown to Christmas</h2>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
                     <!-- Days -->
@@ -348,20 +404,20 @@
                             <div>
                                 <label class="block text-sm font-semibold mb-3 text-gray-300">Select Ornament Color</label>
                                 <div class="flex flex-wrap gap-3" id="color-picker">
-                                    <button class="w-10 h-10 rounded-full bg-red-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn" data-color="#EF4444" onclick="selectColor(this)"></button>
-                                    <button class="w-10 h-10 rounded-full bg-yellow-400 ring-2 ring-offset-2 ring-offset-slate-900 ring-white focus:ring-white ornament-btn" data-color="#FACC15" onclick="selectColor(this)"></button>
-                                    <button class="w-10 h-10 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn" data-color="#3B82F6" onclick="selectColor(this)"></button>
-                                    <button class="w-10 h-10 rounded-full bg-purple-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn" data-color="#A855F7" onclick="selectColor(this)"></button>
-                                    <button class="w-10 h-10 rounded-full bg-white ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn" data-color="#FFFFFF" onclick="selectColor(this)"></button>
+                                    <button class="w-10 h-10 rounded-full bg-red-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn transform hover:scale-110" data-color="#EF4444" onclick="selectColor(this)"></button>
+                                    <button class="w-10 h-10 rounded-full bg-yellow-400 ring-2 ring-offset-2 ring-offset-slate-900 ring-white focus:ring-white ornament-btn transform hover:scale-110" data-color="#FACC15" onclick="selectColor(this)"></button>
+                                    <button class="w-10 h-10 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn transform hover:scale-110" data-color="#3B82F6" onclick="selectColor(this)"></button>
+                                    <button class="w-10 h-10 rounded-full bg-purple-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn transform hover:scale-110" data-color="#A855F7" onclick="selectColor(this)"></button>
+                                    <button class="w-10 h-10 rounded-full bg-white ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent focus:ring-white ornament-btn transform hover:scale-110" data-color="#FFFFFF" onclick="selectColor(this)"></button>
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold mb-3 text-gray-300">Tree Actions</label>
                                 <div class="flex flex-col gap-3">
-                                    <button onclick="toggleLights()" class="bg-xmas-gold hover:bg-yellow-600 text-slate-900 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                                    <button onclick="toggleLights()" class="bg-xmas-gold hover:bg-yellow-600 text-slate-900 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center transform hover:scale-105 active:scale-95">
                                         <i class="fa-regular fa-lightbulb mr-2"></i> Toggle Lights
                                     </button>
-                                    <button onclick="clearTree()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                                    <button onclick="clearTree()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center transform hover:scale-105 active:scale-95">
                                         <i class="fa-solid fa-trash mr-2"></i> Remove Ornaments
                                     </button>
                                 </div>
@@ -405,8 +461,8 @@
     <div id="page-calendar" class="page-section">
         <section class="container mx-auto px-6 py-10">
             <div class="text-center mb-12">
-                <i class="fa-solid fa-gifts text-6xl text-xmas-green mb-4"></i>
-                <h2 class="text-5xl font-festive text-white">Advent Calendar</h2>
+                <i class="fa-solid fa-gifts text-6xl text-xmas-green mb-4 animate-bounce"></i>
+                <h2 class="text-5xl font-festive text-white drop-shadow-lg">Advent Calendar</h2>
                 <p class="text-gray-300 mt-2">Open a surprise gift every day until Christmas!</p>
             </div>
 
@@ -416,22 +472,28 @@
             </div>
             
             <div class="text-center mt-8">
-                 <button onclick="resetAdvent()" class="text-xs text-gray-500 hover:text-red-400 underline">Reset Calendar</button>
+                 <button onclick="resetAdvent()" class="text-xs text-gray-500 hover:text-red-400 underline transition-colors">Reset Calendar</button>
             </div>
             
             <div class="text-center mt-12">
-                 <button onclick="showPage('home')" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors">
+                 <button onclick="showPage('home')" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors flex items-center justify-center mx-auto hover:scale-105 transform">
                      <i class="fa-solid fa-arrow-left mr-2"></i> Back Home
                  </button>
             </div>
         </section>
+        
+        <!-- NEW: Floating Message Box (for error/info instead of alert) -->
+        <div id="calendar-message-box" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 p-4 rounded-xl shadow-2xl z-[100] text-white font-bold opacity-0 transition-opacity duration-300 pointer-events-none" style="background-color: #D42426; min-width: 300px; text-align: center;">
+            Message Here
+        </div>
+        
     </div>
 
     <!-- PAGE: WISHLIST -->
     <div id="page-wishlist" class="page-section">
         <section class="container mx-auto px-6 max-w-3xl py-10">
             <div class="text-center mb-10">
-                <i class="fa-solid fa-scroll text-6xl text-xmas-gold mb-4"></i>
+                <i class="fa-solid fa-scroll text-6xl text-xmas-gold mb-4 animate-wiggle"></i>
                 <h2 class="text-5xl font-festive text-white">My Wish List</h2>
                 <p class="text-gray-300 mt-2">Make a list, check it twice!</p>
             </div>
@@ -444,7 +506,7 @@
 
                 <div class="flex flex-col md:flex-row gap-4 mb-8">
                     <input type="text" id="wish-input" placeholder="I wish for..." class="flex-1 bg-white/10 border border-white/20 rounded-xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-xmas-gold transition-all">
-                    <button onclick="addWish()" class="bg-xmas-green hover:bg-green-700 text-white font-bold py-4 px-8 rounded-xl transition-colors shadow-lg flex items-center justify-center">
+                    <button onclick="addWish()" class="bg-xmas-green hover:bg-green-700 text-white font-bold py-4 px-8 rounded-xl transition-colors shadow-lg flex items-center justify-center transform active:scale-95">
                         <i class="fa-solid fa-plus mr-2"></i> Add
                     </button>
                 </div>
@@ -460,7 +522,7 @@
                 </div>
             </div>
              <div class="text-center mt-12">
-                 <button onclick="showPage('home')" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors">
+                 <button onclick="showPage('home')" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors flex items-center justify-center mx-auto hover:scale-105 transform">
                      <i class="fa-solid fa-arrow-left mr-2"></i> Back Home
                  </button>
             </div>
@@ -472,9 +534,9 @@
         <div class="container mx-auto px-6">
             <div class="text-4xl font-festive text-xmas-red mb-6">Happy Holidays!</div>
             <div class="flex justify-center space-x-6 mb-8 text-2xl text-gray-400">
-                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-facebook"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-twitter"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-instagram"></i></a>
             </div>
             <p class="text-gray-500 text-sm">
                 &copy; <span id="year"></span> Hammy's Christmas Countdown. Spread the joy.
@@ -485,6 +547,60 @@
     <!-- Scripts -->
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Utility to display messages instead of alert/confirm
+        function showTemporaryMessage(message) {
+            const msgBox = document.getElementById('calendar-message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('opacity-0');
+            msgBox.classList.add('opacity-100');
+
+            setTimeout(() => {
+                msgBox.classList.remove('opacity-100');
+                msgBox.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        // --- Sparkle Cursor Logic ---
+        document.addEventListener('mousemove', function(e) {
+            createSparkle(e.clientX, e.clientY);
+        });
+
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            
+            // Randomize color slightly
+            const colors = ['#F8B229', '#D42426', '#FFF'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            sparkle.style.backgroundColor = color;
+            sparkle.style.boxShadow = `0 0 5px ${color}`;
+
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => {
+                sparkle.remove();
+            }, 1000);
+        }
+
+        // --- Hamster Interaction ---
+        function interactHamster(el, type) {
+            if (type === 'spin') {
+                el.classList.add('hamster-spin');
+                // Play fake squeak if we had audio
+            } else if (type === 'jump') {
+                el.classList.add('hamster-jump');
+            } else if (type === 'pop') {
+                el.style.transform = "scale(1.5)";
+                setTimeout(() => el.style.transform = "", 200);
+            }
+            
+            setTimeout(() => {
+                el.classList.remove('hamster-spin', 'hamster-jump');
+            }, 500);
+        }
 
         // --- Router Logic ---
         function showPage(pageId) {
@@ -648,13 +764,21 @@
         let openedDoors = JSON.parse(localStorage.getItem('adventOpened')) || [];
 
         function renderAdvent() {
+            const today = new Date();
+            const currentMonth = today.getMonth(); // 11 for December
+            const currentDate = today.getDate();
+            const isDecember = currentMonth === 11;
+            
             adventGrid.innerHTML = '';
             for (let i = 1; i <= 25; i++) {
                 const gift = adventGifts[i-1];
                 const isOpened = openedDoors.includes(i);
                 
+                // Add 'locked' class if it's December and the door is in the future
+                const isLocked = isDecember && i > currentDate; 
+                
                 const door = document.createElement('div');
-                door.className = `advent-door ${isOpened ? 'open' : ''}`;
+                door.className = `advent-door ${isOpened ? 'open' : ''} ${isLocked ? 'locked' : ''}`;
                 door.setAttribute('onclick', `toggleDoor(this, ${i})`);
                 
                 door.innerHTML = `
@@ -676,17 +800,39 @@
 
         function toggleDoor(element, day) {
             const isOpened = element.classList.contains('open');
-            if (!isOpened) {
-                element.classList.add('open');
-                if (!openedDoors.includes(day)) {
-                    openedDoors.push(day);
-                    localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
+            if (isOpened) return; 
+
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentDate = today.getDate();
+            const isDecember = currentMonth === 11;
+            
+            if (isDecember) {
+                if (day <= currentDate) {
+                    // Door is openable today or earlier
+                    element.classList.add('open');
+                    if (!openedDoors.includes(day)) {
+                        openedDoors.push(day);
+                        localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
+                    }
+                } else {
+                    // Locked due to future date
+                    showTemporaryMessage(`Patience, Hammy! This door opens on December ${day}.`);
                 }
+            } else if (day === 25 && currentMonth === 0) { // January 1st to 25th (for late opens)
+                 // Allow opening if it's January and the day is in range
+                 element.classList.add('open');
+            }
+             else if (currentMonth !== 11) {
+                // Not December
+                showTemporaryMessage("The Advent Calendar is locked until December 1st.");
             }
         }
         
         function resetAdvent() {
-            if(confirm("Close all doors?")) {
+            // Using a simple window.confirm() here as it's outside the main app flow, 
+            // but for a production app, a custom modal is required.
+            if(window.confirm("Are you sure you want to close all doors and reset the calendar?")) {
                 openedDoors = [];
                 localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
                 renderAdvent();
@@ -796,7 +942,8 @@
             }
             wishes.forEach((wish, index) => {
                 const li = document.createElement('li');
-                li.className = 'flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors group';
+                li.className = 'flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors group animate-slide-in';
+                li.style.animationDelay = (index * 0.1) + 's';
                 li.innerHTML = `
                     <span class="text-lg font-medium">${wish}</span>
                     <button onclick="removeWish(${index})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300">
@@ -826,11 +973,14 @@
         function copyWishlist() {
             if (wishes.length === 0) return;
             const text = "🎄 My Christmas Wish List:\n" + wishes.map(w => `- ${w}`).join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Wish list copied to clipboard!");
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
+            // Using execCommand for better iframe compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showTemporaryMessage("Wish list copied to clipboard!");
         }
 
         wishInput.addEventListener('keypress', (e) => {
