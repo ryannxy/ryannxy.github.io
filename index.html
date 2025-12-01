@@ -447,4 +447,458 @@
                     </button>
                 </div>
             </div>
-             <div class="
+             <div class="text-center mt-12">
+                 <button onclick="showPage('home')" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full transition-colors flex items-center justify-center mx-auto hover:scale-105 transform">
+                     <i class="fa-solid fa-arrow-left mr-2"></i> Back Home
+                 </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer --><footer class="bg-xmas-dark py-12 border-t border-white/5 text-center relative z-20 mt-auto">
+        <div class="container mx-auto px-6">
+            <div class="text-4xl font-festive text-xmas-red mb-6">Happy Holidays!</div>
+            <div class="flex justify-center space-x-6 mb-8 text-2xl text-gray-400">
+                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="hover:text-white transition-colors hover:scale-125 transform"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+            <p class="text-gray-500 text-sm">
+                &copy; <span id="year"></span> Rachel's Christmas Countdown. Spread the joy.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts --><script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Utility to display messages instead of alert/confirm
+        function showTemporaryMessage(message) {
+            const msgBox = document.getElementById('calendar-message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('opacity-0');
+            msgBox.classList.add('opacity-100');
+
+            setTimeout(() => {
+                msgBox.classList.remove('opacity-100');
+                msgBox.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        // --- Sparkle Cursor Logic ---
+        document.addEventListener('mousemove', function(e) {
+            createSparkle(e.clientX, e.clientY);
+        });
+
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            
+            // Randomize color slightly
+            const colors = ['#F8B229', '#D42426', '#FFF'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            sparkle.style.backgroundColor = color;
+            sparkle.style.boxShadow = `0 0 5px ${color}`;
+
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => {
+                sparkle.remove();
+            }, 1000);
+        }
+
+        // --- Router Logic ---
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Show target page
+            document.getElementById('page-' + pageId).classList.add('active');
+            
+            // Update Nav State
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.dataset.target === pageId) {
+                    link.classList.add('text-xmas-gold');
+                    link.classList.remove('text-white');
+                } else {
+                    link.classList.remove('text-xmas-gold');
+                    link.classList.add('text-white');
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo(0,0);
+            
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        // --- Snow Effect ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height; // Start above screen
+                this.vx = Math.random() * 2 - 1; // Drift left/right
+                this.vy = Math.random() * 2 + 1; // Fall speed
+                this.size = Math.random() * 3 + 1;
+                this.opacity = Math.random() * 0.5 + 0.3;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wiggle effect
+                this.vx += (Math.random() - 0.5) * 0.05;
+
+                // Reset if out of bounds
+                if (this.y > height) {
+                    this.reset();
+                }
+                if (this.x > width || this.x < 0) {
+                    this.reset();
+                    this.y = Math.random() * height; // Reappear at random height to avoid clumps
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        function initSnow() {
+            resize();
+            particles = [];
+            const particleCount = window.innerWidth < 768 ? 50 : 150; // Fewer particles on mobile
+            for (let i = 0; i < particleCount; i++) {
+                let p = new Particle();
+                p.y = Math.random() * height; // Initial random placement
+                particles.push(p);
+            }
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateSnow);
+        }
+
+        window.addEventListener('resize', initSnow);
+        initSnow();
+        animateSnow();
+
+
+        // --- Countdown Timer ---
+        function updateCountdown() {
+            const currentYear = new Date().getFullYear();
+            const christmas = new Date(`December 25, ${currentYear} 00:00:00`).getTime();
+            const now = new Date().getTime();
+            let distance = christmas - now;
+
+            // If Christmas passed this year, count to next year
+            if (distance < 0) {
+                const nextXmas = new Date(`December 25, ${currentYear + 1} 00:00:00`).getTime();
+                distance = nextXmas - now;
+                document.getElementById('countdown-message').textContent = "Christmas has passed! Counting down to next year...";
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // --- Advent Calendar Logic ---
+        const adventGrid = document.getElementById('advent-grid');
+        const adventGifts = [
+            { icon: 'fa-cookie', text: 'Fresh-Baked Cookie Recipe' },
+            { icon: 'fa-heart', text: 'A digital hug' },
+            { icon: 'fa-snowman', text: 'Snowman-Building Instructions' },
+            { icon: 'fa-mug-hot', text: 'Hot Cocoa Voucher (Self-Redeemable)' },
+            { icon: 'fa-box', text: 'Tiny box of compliments' },
+            { icon: 'fa-microphone-alt', text: 'A high-five from a talking reindeer' },
+            { icon: 'fa-smile', text: 'An uncontrollable giggle' },
+            { icon: 'fa-shield-alt', text: 'Immunity to holiday stress' },
+            { icon: 'fa-feather-alt', text: 'Permission for a 10-minute nap' },
+            { icon: 'fa-caravan', text: 'A map to a secret candy cane forest' },
+            { icon: 'fa-star', text: 'The urge to help a neighbor' },
+            { icon: 'fa-pizza-slice', text: 'Pineapple on pizza is now acceptable' },
+            { icon: 'fa-lightbulb', text: 'A brilliant (but useless) idea' },
+            { icon: 'fa-paw', text: 'Adopt a fictional puppy for the day' },
+            { icon: 'fa-coffee', text: 'A triple shot of holiday cheer' },
+            { icon: 'fa-crown', text: 'Declared King/Queen of Cozy Socks' },
+            { icon: 'fa-book', text: 'A cheesy holiday poem' },
+            { icon: 'fa-gamepad', text: 'Find a matching sock' },
+            { icon: 'fa-cloud', text: 'One day of perfect weather' },
+            { icon: 'fa-infinity', text: 'Endless supply of wrapping paper' },
+            { icon: 'fa-magic', text: 'The ability to pause Christmas songs' },
+            { icon: 'fa-ghost', text: 'A friendly ghost to do chores' },
+            { icon: 'fa-dumbbell', text: 'The energy to finish all your shopping' },
+            { icon: 'fa-bell', text: 'A secret ringing that only you can hear' },
+            { icon: 'fa-gift', text: 'A note saying "Go check under the real tree!"' },
+        ];
+
+        let openedDoors = JSON.parse(localStorage.getItem('adventOpened')) || [];
+
+        function renderAdvent() {
+            const today = new Date();
+            const currentMonth = today.getMonth(); // 11 for December
+            const currentDate = today.getDate();
+            const isDecember = currentMonth === 11;
+            
+            adventGrid.innerHTML = '';
+            for (let i = 1; i <= 25; i++) {
+                const gift = adventGifts[i-1];
+                const isOpened = openedDoors.includes(i);
+                
+                // Add 'locked' class if it's December and the door is in the future
+                const isLocked = isDecember && i > currentDate; 
+                
+                const door = document.createElement('div');
+                door.className = `advent-door ${isOpened ? 'open' : ''} ${isLocked ? 'locked' : ''}`;
+                door.setAttribute('onclick', `toggleDoor(this, ${i})`);
+                
+                door.innerHTML = `
+                    <div class="door-inner">
+                        <div class="door-front">
+                            <span class="door-number">${i}</span>
+                        </div>
+                        <div class="door-back">
+                            <div class="bg-white/50 p-3 rounded-full mb-2 shadow-inner">
+                                <i class="fa-solid ${gift.icon} text-4xl text-xmas-red"></i>
+                            </div>
+                            <span class="text-sm font-bold uppercase tracking-wider text-slate-700 font-festive text-lg">${gift.text}</span>
+                        </div>
+                    </div>
+                `;
+                adventGrid.appendChild(door);
+            }
+        }
+
+        function toggleDoor(element, day) {
+            const isOpened = element.classList.contains('open');
+            if (isOpened) return; 
+
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentDate = today.getDate();
+            const isDecember = currentMonth === 11;
+            
+            if (isDecember) {
+                if (day <= currentDate) {
+                    // Door is openable today or earlier
+                    element.classList.add('open');
+                    if (!openedDoors.includes(day)) {
+                        openedDoors.push(day);
+                        localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
+                    }
+                } else {
+                    // Locked due to future date
+                    showTemporaryMessage(`Patience! This door opens on December ${day}.`);
+                }
+            } else if (day === 25 && currentMonth === 0) { // January 1st to 25th (for late opens)
+                 // Allow opening if it's January and the day is in range
+                 element.classList.add('open');
+            }
+             else if (currentMonth !== 11) {
+                // Not December
+                showTemporaryMessage("The Advent Calendar is locked until December 1st.");
+            }
+        }
+        
+        function resetAdvent() {
+            // Using a temporary modal substitute here to handle the lack of confirm()
+            if(window.confirm("Are you sure you want to close all doors and reset the calendar?")) {
+                openedDoors = [];
+                localStorage.setItem('adventOpened', JSON.stringify(openedDoors));
+                renderAdvent();
+            }
+        }
+        renderAdvent();
+
+
+        // --- Tree Decoration Game ---
+        let selectedColor = '#FACC15'; // Default Gold
+        const svg = document.getElementById('christmas-tree');
+        const ornamentsLayer = document.getElementById('ornaments-layer');
+        let lightsOn = false;
+
+        function selectColor(btn) {
+            document.querySelectorAll('.ornament-btn').forEach(b => {
+                b.classList.remove('ring-white');
+                b.classList.add('ring-transparent');
+            });
+            btn.classList.remove('ring-transparent');
+            btn.classList.add('ring-white');
+            selectedColor = btn.getAttribute('data-color');
+        }
+
+        function getSVGPoint(event) {
+            const pt = svg.createSVGPoint();
+            pt.x = event.clientX;
+            pt.y = event.clientY;
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        function isPointInTriangle(p, p0, p1, p2) {
+            const A = 0.5 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
+            const sign = A < 0 ? -1 : 1;
+            const s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
+            const t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y) * sign;
+            return s > 0 && t > 0 && (s + t) < 2 * A * sign;
+        }
+
+        function isInsideTree(point) {
+            const t1 = [{x:50,y:520}, {x:200,y:150}, {x:350,y:520}];
+            const t2 = [{x:75,y:400}, {x:200,y:100}, {x:325,y:400}];
+            const t3 = [{x:100,y:280}, {x:200,y:50}, {x:300,y:280}];
+            
+            return isPointInTriangle(point, t1[0], t1[1], t1[2]) ||
+                   isPointInTriangle(point, t2[0], t2[1], t2[2]) ||
+                   isPointInTriangle(point, t3[0], t3[1], t3[2]);
+        }
+
+        svg.addEventListener('click', (e) => {
+            const point = getSVGPoint(e);
+            if (isInsideTree(point)) {
+                createOrnament(point.x, point.y, selectedColor);
+            }
+        });
+
+        function createOrnament(x, y, color) {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", "12");
+            circle.setAttribute("fill", color);
+            circle.setAttribute("stroke", "rgba(0,0,0,0.2)");
+            circle.setAttribute("stroke-width", "1");
+            circle.style.cursor = "pointer";
+            const shine = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            shine.setAttribute("cx", x - 3);
+            shine.setAttribute("cy", y - 3);
+            shine.setAttribute("r", "3");
+            shine.setAttribute("fill", "rgba(255,255,255,0.4)");
+            shine.style.pointerEvents = "none";
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.appendChild(circle);
+            group.appendChild(shine);
+            group.addEventListener('click', (e) => {
+                e.stopPropagation();
+                group.remove();
+            });
+            ornamentsLayer.appendChild(group);
+        }
+
+        function clearTree() {
+            ornamentsLayer.innerHTML = '';
+        }
+
+        function toggleLights() {
+            const lights = document.getElementById('tree-lights');
+            lightsOn = !lightsOn;
+            if (lightsOn) {
+                lights.classList.remove('opacity-0');
+            } else {
+                lights.classList.add('opacity-0');
+            }
+        }
+
+
+        // --- Wish List Logic ---
+        const wishInput = document.getElementById('wish-input');
+        const wishList = document.getElementById('wish-list');
+        let wishes = JSON.parse(localStorage.getItem('xmasWishes')) || [];
+        
+        function renderWishes() {
+            wishList.innerHTML = '';
+            if (wishes.length === 0) {
+                wishList.innerHTML = '<li class="text-gray-400 text-center italic py-4">Your list is empty. Add a wish!</li>';
+                return;
+            }
+            wishes.forEach((wish, index) => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors group animate-slide-in';
+                li.style.animationDelay = (index * 0.1) + 's';
+                li.innerHTML = `
+                    <span class="text-lg font-medium">${wish}</span>
+                    <button onclick="removeWish(${index})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                `;
+                wishList.appendChild(li);
+            });
+        }
+
+        function addWish() {
+            const text = wishInput.value.trim();
+            if (text) {
+                wishes.push(text);
+                localStorage.setItem('xmasWishes', JSON.stringify(wishes));
+                wishInput.value = '';
+                renderWishes();
+            }
+        }
+
+        function removeWish(index) {
+            wishes.splice(index, 1);
+            localStorage.setItem('xmasWishes', JSON.stringify(wishes));
+            renderWishes();
+        }
+
+        function copyWishlist() {
+            if (wishes.length === 0) return;
+            const text = "🎄 My Christmas Wish List:\n" + wishes.map(w => `- ${w}`).join('\n');
+            // Using execCommand for better iframe compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showTemporaryMessage("Wish list copied to clipboard!");
+        }
+
+        wishInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addWish();
+        });
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        renderWishes();
+    </script>
+</body>
+</html>
